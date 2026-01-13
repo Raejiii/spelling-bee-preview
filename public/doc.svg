@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="40" r="20" fill="#FFCC80"/>
+  <rect x="30" y="60" width="40" height="40" fill="white"/> <!-- Coat -->
+  <path d="M45 70 L55 70 L55 80 L65 80 L65 90 L55 90 L55 100 L45 100 L45 90 L35 90 L35 80 L45 80 Z" fill="#F44336"/> <!-- Cross -->
+  <path d="M30 30 Q50 10 70 30" fill="#BDBDBD"/> <!-- Stethoscope -->
+</svg>

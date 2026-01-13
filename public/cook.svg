@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="30" y="10" width="40" height="30" fill="white"/> <!-- Hat -->
+  <circle cx="50" cy="50" r="20" fill="#FFCC80"/>
+  <rect x="30" y="70" width="40" height="30" fill="white"/> <!-- Coat -->
+  <path d="M30 70 L70 70" stroke="#F44336" stroke-width="2"/> <!-- Scarf -->
+</svg>

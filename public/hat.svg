@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M20 70 L80 70 L70 40 L30 40 Z" fill="#3E2723"/>
+  <rect x="10" y="70" width="80" height="10" fill="#3E2723"/>
+  <rect x="30" y="60" width="40" height="10" fill="#D7CCC8"/> <!-- Band -->
+</svg>

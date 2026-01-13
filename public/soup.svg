@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M20 50 Q50 90 80 50" fill="#795548"/>
+  <ellipse cx="50" cy="50" rx="30" ry="10" fill="#FFCC80"/> <!-- Soup -->
+  <path d="M50 40 Q60 20 50 10" stroke="#BDBDBD" stroke-width="2" fill="none"/>
+  <path d="M60 40 Q70 20 60 10" stroke="#BDBDBD" stroke-width="2" fill="none"/>
+</svg>

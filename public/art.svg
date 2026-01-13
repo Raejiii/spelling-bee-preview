@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M20 50 Q50 20 80 50 Q50 80 20 50" fill="#F5F5F5"/> <!-- Palette -->
+  <circle cx="30" cy="50" r="5" fill="red"/>
+  <circle cx="45" cy="40" r="5" fill="blue"/>
+  <circle cx="60" cy="50" r="5" fill="yellow"/>
+  <rect x="70" y="30" width="10" height="40" fill="#795548" transform="rotate(45 75 50)"/> <!-- Brush -->
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M30 20 L70 20 L80 80 L20 80 Z" fill="#FF9800"/>
+  <path d="M50 20 L50 80" stroke="#E65100" stroke-width="2"/>
+  <path d="M30 20 L30 40" stroke="#E65100" stroke-width="2"/> <!-- Armhole -->
+  <path d="M70 20 L70 40" stroke="#E65100" stroke-width="2"/> <!-- Armhole -->
+</svg>

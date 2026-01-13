@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M10 50 L80 50 L90 40 L90 60 L80 50" fill="#90CAF9"/>
+  <ellipse cx="50" cy="50" rx="40" ry="10" fill="#E0E0E0"/>
+  <path d="M40 50 L60 20 L70 50" fill="#BDBDBD"/> <!-- Wing -->
+  <path d="M10 50 L20 30" fill="#BDBDBD"/> <!-- Tail -->
+</svg>

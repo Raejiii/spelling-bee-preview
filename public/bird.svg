@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="30" fill="#FFEB3B"/>
+  <polygon points="75,50 95,40 95,60" fill="#FFEB3B"/>
+  <polygon points="50,50 30,80 70,80" fill="#FFEB3B" opacity="0"/> <!-- wing? no -->
+  <path d="M50 30 Q30 50 50 70" fill="#FFC107"/> <!-- wing -->
+  <circle cx="40" cy="40" r="3" fill="black"/>
+  <polygon points="20,50 10,45 10,55" fill="#FF5722"/> <!-- beak -->
+</svg>

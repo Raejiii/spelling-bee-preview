@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M30 60 L70 60 L80 40 L20 40 Z" fill="#795548"/> <!-- Horse body -->
+  <circle cx="20" cy="30" r="10" fill="#795548"/> <!-- Horse head -->
+  <circle cx="50" cy="30" r="8" fill="#3F51B5"/> <!-- Rider -->
+  <line x1="50" y1="30" x2="80" y2="20" stroke="#BDBDBD" stroke-width="2"/> <!-- Stick -->
+</svg>

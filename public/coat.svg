@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M30 20 L70 20 L80 80 L20 80 Z" fill="#607D8B"/>
+  <line x1="50" y1="20" x2="50" y2="80" stroke="#455A64" stroke-width="2"/>
+  <rect x="20" y="20" width="20" height="40" fill="#607D8B"/> <!-- Sleeve -->
+  <rect x="60" y="20" width="20" height="40" fill="#607D8B"/> <!-- Sleeve -->
+  <circle cx="55" cy="40" r="2" fill="black"/>
+  <circle cx="55" cy="50" r="2" fill="black"/>
+  <circle cx="55" cy="60" r="2" fill="black"/>
+</svg>

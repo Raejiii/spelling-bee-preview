@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="20" y="70" width="60" height="5" fill="#BDBDBD"/> <!-- Skis -->
+  <line x1="40" y1="40" x2="30" y2="70" stroke="#795548" stroke-width="2"/> <!-- Pole -->
+  <line x1="60" y1="40" x2="70" y2="70" stroke="#795548" stroke-width="2"/> <!-- Pole -->
+  <circle cx="50" cy="30" r="8" fill="#2196F3"/>
+  <path d="M40 40 L60 40 L55 70 L45 70 Z" fill="#1976D2"/>
+</svg>

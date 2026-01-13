@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M30 20 L70 20 L80 40 L20 40 Z" fill="#1565C0"/> <!-- Hat -->
+  <circle cx="50" cy="50" r="20" fill="#FFCC80"/>
+  <rect x="30" y="70" width="40" height="30" fill="#1565C0"/> <!-- Uniform -->
+  <circle cx="50" cy="30" r="5" fill="#FFD700"/> <!-- Badge -->
+</svg>
