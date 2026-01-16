@@ -50,10 +50,18 @@ const LEVEL_1: Level = {
       id: 2,
       type: 'parallelogram',
       // Symmetrical at 0 and 180? Yes.
-      path: "M -25 25 L 25 25 L 75 -25 L 25 -25 Z",
+      // Width 50 horizontal, Height 50 vertical.
+      // M -25 25 L 25 25 L 75 -25 L 25 -25 Z
+      // Center of this path: (25, 0).
+      // We want to center it at (0,0) for rotation.
+      // Shift left by 25:
+      // M -50 25 L 0 25 L 50 -25 L 0 -25 Z
+      path: "M -50 25 L 0 25 L 50 -25 L 0 -25 Z",
       width: 100,
       height: 50,
-      solution: { x: 25, y: -50, rotation: 0 },
+      // Previous solution: { x: 25, y: -50 }
+      // Since we shifted path left by 25, we need to shift solution right by 25.
+      solution: { x: 50, y: -50, rotation: 0 },
       initial: { x: 200, y: 50, rotation: 45 },
       validRotations: [0, 180]
     },
@@ -347,9 +355,16 @@ export default function TangramGame() {
     // Check against all potential targets
     for (const targetPiece of potentialTargets) {
         // Skip if this target is already filled by ANOTHER piece (unless it's the current one)
-        // Actually, logic is: Is there a "solution" slot available?
-        // We need to check if we are close to targetPiece.solution
-        
+        // Check if ANY piece is currently placed at this target's solution coordinates
+        const isTargetOccupied = Object.values(pieceStates).some(state => {
+            if (!state.isPlaced) return false
+            // Check if state matches target position
+            // We use a small epsilon for float comparison, or just check exact match if we trust the snap logic
+            return Math.abs(state.x - targetPiece.solution.x) < 1 && Math.abs(state.y - targetPiece.solution.y) < 1
+        })
+
+        if (isTargetOccupied) continue
+
         const target = targetPiece.solution
         
         const dist = Math.sqrt(
