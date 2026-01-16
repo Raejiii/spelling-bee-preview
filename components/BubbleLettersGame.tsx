@@ -89,7 +89,7 @@ const LEVELS = [LEVEL_1]
 // --- Component ---
 
 export default function TangramGame() {
-  const [currentLevelIdx, setCurrentLevelIdx] = useState(0)
+  const [currentLevelIdx] = useState(0)
   const level = LEVELS[currentLevelIdx]
   
   // State for pieces: current x, y, rotation, isPlaced
@@ -215,8 +215,13 @@ export default function TangramGame() {
     
     // Determine if we clicked the Rotate Handle or the Body
     // We will render a specific rotate handle element.
-    const target = e.target as Element
+    const target = e.target as HTMLElement
     const isRotateHandle = target.classList.contains('rotate-handle')
+    
+    // Capture pointer for consistent tracking
+    if (target.setPointerCapture) {
+        target.setPointerCapture(e.pointerId)
+    }
     
     const pieceState = pieceStates[pieceId]
     setActivePieceId(pieceId) // Set active for showing handles
@@ -286,7 +291,7 @@ export default function TangramGame() {
     }
   }
 
-  const handlePointerUp = (e: React.PointerEvent) => {
+  const handlePointerUp = () => {
     if (draggedPieceId) {
         checkSnap(draggedPieceId)
         setDragPieceId(null)
@@ -318,21 +323,6 @@ export default function TangramGame() {
       
       // Check snap after flip
       setTimeout(() => checkSnap(pieceId), 50)
-  }
-
-  const rotatePiece = (id: number) => {
-    setPieceStates(prev => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        rotation: (prev[id].rotation + 45) % 360,
-        isPlaced: false
-      }
-    }))
-    // We should also check snap after rotation? 
-    // Maybe defer to user dragging it again, or auto-check. 
-    // Let's auto-check snap after a short delay or immediately if close.
-    setTimeout(() => checkSnap(id), 50)
   }
 
   const checkSnap = (id: number) => {
