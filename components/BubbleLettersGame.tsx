@@ -12,11 +12,13 @@ interface Point {
 
 interface Piece {
   id: number
+  type?: string // 'triangle', 'square', etc. for interchangeability
   path: string // SVG path data (relative to 0,0 being center of piece)
   width: number
   height: number
   solution: { x: number; y: number; rotation: number } // Target position (relative to board center)
   initial: { x: number; y: number; rotation: number } // Initial position (relative to board center)
+  validRotations?: number[] // Additional valid rotations (e.g. [0, 180] for symmetry)
 }
 
 interface Level {
@@ -34,28 +36,34 @@ const LEVEL_1: Level = {
     // 1. Bottom Rectangle (Base)
     {
       id: 1,
-      // Rect 50x150
+      type: 'rect',
+      // Rect 50x150. Symmetrical at 0 and 180.
       path: "M -25 -75 L 25 -75 L 25 75 L -25 75 Z",
       width: 50,
       height: 150,
       solution: { x: 0, y: 50, rotation: 0 },
-      initial: { x: 200, y: 150, rotation: 90 }
+      initial: { x: 200, y: 150, rotation: 90 },
+      validRotations: [0, 180]
     },
     // 2. Parallelogram (Angled arm)
     {
       id: 2,
-      // Width 50 horizontal, Height 50 vertical. Slant 45 deg.
-      // M -25 25 L 25 25 L 75 -25 L 25 -25 Z
+      type: 'parallelogram',
+      // Symmetrical at 0 and 180? Yes.
       path: "M -25 25 L 25 25 L 75 -25 L 25 -25 Z",
       width: 100,
       height: 50,
       solution: { x: 25, y: -50, rotation: 0 },
-      initial: { x: 200, y: 50, rotation: 45 }
+      initial: { x: 200, y: 50, rotation: 45 },
+      validRotations: [0, 180]
     },
     // 3. Middle Triangle (Corner filler)
     {
       id: 3,
-      // Small Right Triangle.
+      type: 'small-triangle',
+      // Isosceles Right Triangle? 
+      // Vertices: (-25, 25), (25, 25), (-25, -25).
+      // Not symmetrical rotationally in 2D without flip.
       path: "M -25 25 L 25 25 L -25 -25 Z",
       width: 50,
       height: 50,
@@ -65,7 +73,8 @@ const LEVEL_1: Level = {
     // 4. Top Triangle (Tip)
     {
       id: 4,
-      // Small Right Triangle
+      type: 'small-triangle',
+      // Same shape as piece 3.
       path: "M -25 25 L 25 25 L -25 -25 Z",
       width: 50,
       height: 50,
@@ -92,6 +101,7 @@ export default function TangramGame() {
   const [isPaused, setIsPaused] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
+  const [activePieceId, setActivePieceId] = useState<number | null>(null) // For showing rotation handles
   const [draggedPieceId, setDragPieceId] = useState<number | null>(null)
   const [interactionMode, setInteractionMode] = useState<'move' | 'rotate' | null>(null)
   
@@ -203,22 +213,15 @@ export default function TangramGame() {
     e.preventDefault()
     e.stopPropagation()
     
-    // Calculate click position relative to piece center (which is 0,0 in local SVG space)
-    // We need to transform the client coordinates to the board's coordinate space first?
-    // Actually, simpler: check if we hit the "Dot".
-    // The Dot is rendered as a circle with radius 6.
-    // However, event target might be the path or the circle.
-    // If we click the circle, it's definitely the dot.
-    
-    // Let's rely on event target to determine "Dot" vs "Body"
-    // We will add a larger invisible hit area for the dot for usability.
-    
-    const target = e.target as SVGElement
-    const isDot = target.tagName === 'circle' || target.classList.contains('dot-hit-area')
+    // Determine if we clicked the Rotate Handle or the Body
+    // We will render a specific rotate handle element.
+    const target = e.target as Element
+    const isRotateHandle = target.classList.contains('rotate-handle')
     
     const pieceState = pieceStates[pieceId]
+    setActivePieceId(pieceId) // Set active for showing handles
     setDragPieceId(pieceId)
-    setInteractionMode(isDot ? 'move' : 'rotate')
+    setInteractionMode(isRotateHandle ? 'rotate' : 'move')
     
     dragStartPos.current = { x: e.clientX, y: e.clientY }
     pieceStartPos.current = { x: pieceState.x, y: pieceState.y }
@@ -284,17 +287,19 @@ export default function TangramGame() {
   }
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    if (!draggedPieceId) return
-    
-    // checkSnap logic does NOT depend on drag distance, just final state.
-    // However, if we want to support tap/click detection for non-drag actions, 
-    // we should use screen distance, which is correct (e.clientX vs dragStartPos).
-    // The previous code used screen distance for totalDist calculation.
-    
-    checkSnap(draggedPieceId)
-    
-    setDragPieceId(null)
-    setInteractionMode(null)
+    if (draggedPieceId) {
+        checkSnap(draggedPieceId)
+        setDragPieceId(null)
+        setInteractionMode(null)
+    }
+    // Note: We do NOT clear activePieceId here, so the selection box stays visible until you click elsewhere.
+  }
+  
+  // Clear selection when clicking background
+  const handleBackgroundClick = () => {
+      if (!draggedPieceId) {
+          setActivePieceId(null)
+      }
   }
 
   const handleDoubleClick = (e: React.MouseEvent, pieceId: number) => {
@@ -332,38 +337,92 @@ export default function TangramGame() {
 
   const checkSnap = (id: number) => {
     const currentState = pieceStates[id]
-    const target = level.pieces.find(p => p.id === id)?.solution
     
-    if (!target) return
+    // Find ALL potential targets that match this piece's type (or ID if no type)
+    // This allows interchangeable pieces (like 2 identical triangles) to snap to EITHER spot.
+    const currentPieceDef = level.pieces.find(p => p.id === id)
+    if (!currentPieceDef) return
+
+    const potentialTargets = level.pieces.filter(p => {
+        // If types are defined and match, it's a valid target.
+        if (currentPieceDef.type && p.type === currentPieceDef.type) return true
+        // Otherwise, fallback to strict ID matching
+        return p.id === id
+    })
 
     // Thresholds
-    const DIST_THRESHOLD = 45 // Increased for better mobile experience
-    const ROT_THRESHOLD = 22.5 // degrees (half of 45 step)
+    const DIST_THRESHOLD = 60 
+    const ROT_THRESHOLD = 25 
 
-    const dist = Math.sqrt(
-      Math.pow(currentState.x - target.x, 2) + 
-      Math.pow(currentState.y - target.y, 2)
-    )
-    
-    // Normalize rotation diff (handle 0 vs 360)
-    let rotDiff = Math.abs(currentState.rotation - target.rotation) % 360
-    if (rotDiff > 180) rotDiff = 360 - rotDiff
-
-    if (dist < DIST_THRESHOLD && rotDiff < ROT_THRESHOLD) {
-      // SNAP!
-      setPieceStates(prev => ({
-        ...prev,
-        [id]: {
-          ...prev[id],
-          x: target.x,
-          y: target.y,
-          rotation: target.rotation,
-          isPlaced: true
+    // Check against all potential targets
+    for (const targetPiece of potentialTargets) {
+        // Skip if this target is already filled by ANOTHER piece (unless it's the current one)
+        // Actually, logic is: Is there a "solution" slot available?
+        // We need to check if we are close to targetPiece.solution
+        
+        const target = targetPiece.solution
+        
+        const dist = Math.sqrt(
+          Math.pow(currentState.x - target.x, 2) + 
+          Math.pow(currentState.y - target.y, 2)
+        )
+        
+        // Check Rotation
+        // We need to check against the target rotation AND any valid symmetries.
+        // Base valid rotations for the piece itself (e.g. 0, 180 for rect)
+        // PLUS the target rotation offset.
+        // Actually, simpler: 
+        // Target rotation is T.
+        // Piece can be at T, T+180, etc.
+        
+        const validOffsets = currentPieceDef.validRotations || [0]
+        let isRotationValid = false
+        
+        for (const offset of validOffsets) {
+            // Target rotation + offset
+            const targetRotWithOffset = (target.rotation + offset) % 360
+            
+            let rotDiff = Math.abs(currentState.rotation - targetRotWithOffset) % 360
+            if (rotDiff > 180) rotDiff = 360 - rotDiff
+            
+            if (rotDiff < ROT_THRESHOLD) {
+                isRotationValid = true
+                break
+            }
         }
-      }))
-      
-      // Play sound?
-      // playSnapSound()
+
+        if (dist < DIST_THRESHOLD && isRotationValid) {
+             // SNAP!
+             // We need to snap to the TARGET's location and rotation.
+             // But which rotation? The one we matched closest to.
+             
+             // Recalculate best snap rotation
+             let bestSnapRotation = target.rotation
+             let minDiff = 360
+             
+             for (const offset of validOffsets) {
+                 const targetRotWithOffset = (target.rotation + offset) % 360
+                 let rotDiff = Math.abs(currentState.rotation - targetRotWithOffset) % 360
+                 if (rotDiff > 180) rotDiff = 360 - rotDiff
+                 
+                 if (rotDiff < minDiff) {
+                     minDiff = rotDiff
+                     bestSnapRotation = targetRotWithOffset
+                 }
+             }
+
+             setPieceStates(prev => ({
+                ...prev,
+                [id]: {
+                  ...prev[id],
+                  x: target.x,
+                  y: target.y,
+                  rotation: bestSnapRotation,
+                  isPlaced: true
+                }
+             }))
+             return // Stop checking other targets once snapped
+        }
     }
   }
 
@@ -409,6 +468,7 @@ export default function TangramGame() {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
+      onPointerDown={handleBackgroundClick}
       style={{
         // Background pattern
         backgroundImage: 'url("/Tangram Puzzles.svg")',
@@ -677,13 +737,14 @@ export default function TangramGame() {
                     {level.pieces.map(p => {
                         const state = pieceStates[p.id] || { x: 0, y: 0, rotation: 0, isPlaced: false }
                         const isDragging = draggedPieceId === p.id
+                        const isActive = activePieceId === p.id
                         
                         return (
                             <div
                                 key={p.id}
                                 className={cn(
                                     "absolute transition-transform pointer-events-none", // Container ignores events
-                                    isDragging ? "z-50 scale-105" : "z-40",
+                                    isDragging ? "z-50" : (isActive ? "z-45" : "z-40"),
                                     // If dragging, disable transition for smooth follow
                                     isDragging ? "duration-0" : "duration-200 ease-out" 
                                 )}
@@ -700,6 +761,40 @@ export default function TangramGame() {
                                         filter: isDragging ? 'drop-shadow(0px 10px 10px rgba(0,0,0,0.3))' : 'drop-shadow(0px 2px 2px rgba(0,0,0,0.2))'
                                     }}
                                 >
+                                    {/* Selection Box / Rotate Handles (Photoshop Style) */}
+                                    {isActive && !state.isPlaced && (
+                                        <g>
+                                            {/* Bounding Box Outline */}
+                                            <rect 
+                                                x={-p.width/2 - 5} 
+                                                y={-p.height/2 - 5} 
+                                                width={p.width + 10} 
+                                                height={p.height + 10} 
+                                                fill="none" 
+                                                stroke="#3b82f6" 
+                                                strokeWidth="1.5"
+                                                strokeDasharray="4 2"
+                                                className="pointer-events-none"
+                                            />
+                                            {/* Rotate Handle (Top Center stem) */}
+                                            <line 
+                                                x1="0" y1={-p.height/2 - 5} 
+                                                x2="0" y2={-p.height/2 - 25} 
+                                                stroke="#3b82f6" 
+                                                strokeWidth="1.5" 
+                                            />
+                                            <circle 
+                                                cx="0" cy={-p.height/2 - 25} 
+                                                r="6" 
+                                                fill="#ffffff" 
+                                                stroke="#3b82f6" 
+                                                strokeWidth="2"
+                                                className="rotate-handle cursor-[url('https://lucide.dev/icons/rotate-cw'),_auto] pointer-events-auto hover:scale-125 transition-transform"
+                                                onPointerDown={(e) => handlePointerDown(e, p.id)}
+                                            />
+                                        </g>
+                                    )}
+
                                     <path 
                                         d={p.path} 
                                         fill="#881337" // Burgundy
@@ -713,12 +808,9 @@ export default function TangramGame() {
                                         onDoubleClick={(e) => handleDoubleClick(e, p.id)}
                                         transform={state.isFlipped ? "scale(-1, 1)" : ""}
                                     />
-                                    {/* Orange Dot - only show if not placed */}
+                                    {/* Center Dot - purely visual now, or for dragging if preferred */}
                                     {!state.isPlaced && (
-                                        <>
-                                            <circle cx="0" cy="0" r="16" fill="transparent" className="dot-hit-area pointer-events-auto cursor-move" onPointerDown={(e) => handlePointerDown(e, p.id)} />
-                                            <circle cx="0" cy="0" r="6" fill="#f59e0b" stroke="#b45309" strokeWidth="1" className="pointer-events-none" />
-                                        </>
+                                        <circle cx="0" cy="0" r="4" fill="#f59e0b" stroke="#b45309" strokeWidth="1" className="pointer-events-none" />
                                     )}
                                 </svg>
                             </div>
