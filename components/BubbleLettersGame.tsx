@@ -27,77 +27,215 @@ interface Level {
   boardSize: { width: number; height: number }
 }
 
+// --- Shape Definitions ---
+
+const PIECE_DEFS = {
+    RECT: {
+        type: 'rect',
+        path: "M -25 -75 L 25 -75 L 25 75 L -25 75 Z",
+        width: 50,
+        height: 150,
+        validRotations: [0, 180]
+    },
+    PARA: {
+        type: 'parallelogram',
+        path: "M -50 25 L 0 25 L 50 -25 L 0 -25 Z",
+        width: 100,
+        height: 50,
+        validRotations: [0, 180]
+    },
+    TRI_SMALL: {
+        type: 'small-triangle',
+        path: "M -25 25 L 25 25 L -25 -25 Z",
+        width: 50,
+        height: 50,
+        validRotations: [0]
+    },
+    SQUARE: {
+        type: 'square',
+        path: "M -25 -25 L 25 -25 L 25 25 L -25 25 Z",
+        width: 50,
+        height: 50,
+        validRotations: [0, 90, 180, 270]
+    },
+    TRI_LARGE: {
+        type: 'large-triangle',
+        path: "M -50 50 L 50 50 L -50 -50 Z",
+        width: 100,
+        height: 100,
+        validRotations: [0]
+    }
+}
+
 // --- Level Data ---
 
 const LEVEL_1: Level = {
   id: 1,
   boardSize: { width: 400, height: 500 },
   pieces: [
-    // 1. Bottom Rectangle (Base)
     {
-      id: 1,
-      type: 'rect',
-      // Rect 50x150. Symmetrical at 0 and 180.
-      path: "M -25 -75 L 25 -75 L 25 75 L -25 75 Z",
-      width: 50,
-      height: 150,
+      id: 1, ...PIECE_DEFS.RECT,
       solution: { x: 0, y: 50, rotation: 0 },
       initial: { x: 200, y: 150, rotation: 90 },
-      validRotations: [0, 180]
     },
-    // 2. Parallelogram (Angled arm)
     {
-      id: 2,
-      type: 'parallelogram',
-      // Symmetrical at 0 and 180? Yes.
-      // Width 50 horizontal, Height 50 vertical.
-      // M -25 25 L 25 25 L 75 -25 L 25 -25 Z
-      // Center of this path: (25, 0).
-      // We want to center it at (0,0) for rotation.
-      // Shift left by 25:
-      // M -50 25 L 0 25 L 50 -25 L 0 -25 Z
-      path: "M -50 25 L 0 25 L 50 -25 L 0 -25 Z",
-      width: 100,
-      height: 50,
-      // Previous solution: { x: 25, y: -50 }
-      // Since we shifted path left by 25, we need to shift solution right by 25.
+      id: 2, ...PIECE_DEFS.PARA,
       solution: { x: 50, y: -50, rotation: 0 },
       initial: { x: 200, y: 50, rotation: 45 },
-      validRotations: [0, 180]
     },
-    // 3. Middle Triangle (Corner filler)
     {
-      id: 3,
-      type: 'small-triangle',
-      // Isosceles Right Triangle? 
-      // Vertices: (-25, 25), (25, 25), (-25, -25).
-      // Not symmetrical rotationally in 2D without flip.
-      path: "M -25 25 L 25 25 L -25 -25 Z",
-      width: 50,
-      height: 50,
+      id: 3, ...PIECE_DEFS.TRI_SMALL,
       solution: { x: 0, y: -50, rotation: 0 }, 
       initial: { x: 200, y: -50, rotation: 0 }
     },
-    // 4. Top Triangle (Tip)
     {
-      id: 4,
-      type: 'small-triangle',
-      // Same shape as piece 3.
-      path: "M -25 25 L 25 25 L -25 -25 Z",
-      width: 50,
-      height: 50,
+      id: 4, ...PIECE_DEFS.TRI_SMALL,
       solution: { x: 75, y: -75, rotation: 180 },
       initial: { x: 200, y: -120, rotation: 180 }
     }
   ]
 }
 
-const LEVELS = [LEVEL_1]
+const LEVEL_2: Level = {
+    id: 2, // The House
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.SQUARE, // Body
+            solution: { x: 0, y: 25, rotation: 0 },
+            initial: { x: 200, y: 150, rotation: 45 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.TRI_SMALL, // Roof
+            solution: { x: 0, y: -25, rotation: 0 },
+            initial: { x: 200, y: -100, rotation: 180 },
+        }
+    ]
+}
+
+const LEVEL_3: Level = {
+    id: 3, // The Boat
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.PARA, // Hull
+            solution: { x: 0, y: 25, rotation: 0 },
+            initial: { x: 200, y: 50, rotation: 45 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.TRI_SMALL, // Sail
+            solution: { x: 0, y: -25, rotation: 0 },
+            initial: { x: -200, y: -50, rotation: 0 },
+        }
+    ]
+}
+
+const LEVEL_4: Level = {
+    id: 4, // The Tree
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.RECT, // Trunk
+            solution: { x: 0, y: 50, rotation: 0 }, // Top at -25
+            initial: { x: -200, y: 50, rotation: 90 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.TRI_LARGE, // Leaves
+            solution: { x: 0, y: -75, rotation: 0 }, // Bottom at -25
+            initial: { x: 200, y: -100, rotation: 180 },
+        }
+    ]
+}
+
+const LEVEL_5: Level = {
+    id: 5, // The Hammer
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.RECT, // Handle
+            solution: { x: 0, y: 25, rotation: 0 }, // Top at -50
+            initial: { x: 200, y: 150, rotation: 90 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.RECT, // Head
+            solution: { x: 0, y: -75, rotation: 90 },
+            initial: { x: -200, y: -100, rotation: 0 },
+        }
+    ]
+}
+
+const LEVEL_6: Level = {
+    id: 6, // The Rocket
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.RECT, // Body
+            solution: { x: 0, y: 0, rotation: 0 }, // Top at -75
+            initial: { x: 0, y: 200, rotation: 90 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.TRI_SMALL, // Nose
+            solution: { x: 0, y: -100, rotation: 0 }, // Bottom at -75
+            initial: { x: 200, y: -200, rotation: 180 },
+        },
+        {
+            id: 3, ...PIECE_DEFS.TRI_SMALL, // Fin Left
+            solution: { x: -50, y: 75, rotation: 90 },
+            initial: { x: -200, y: 200, rotation: 0 },
+        },
+        {
+            id: 4, ...PIECE_DEFS.TRI_SMALL, // Fin Right
+            solution: { x: 50, y: 75, rotation: 270 },
+            initial: { x: 200, y: 200, rotation: 0 },
+        }
+    ]
+}
+
+const LEVEL_7: Level = {
+    id: 7, // The Fish
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.SQUARE, // Body
+            solution: { x: 0, y: 0, rotation: 45 },
+            initial: { x: 0, y: 0, rotation: 0 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.TRI_SMALL, // Tail
+            solution: { x: -50, y: 0, rotation: 270 },
+            initial: { x: 200, y: 0, rotation: 0 },
+        }
+    ]
+}
+
+const LEVEL_8: Level = {
+    id: 8, // The Sword
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.RECT, // Blade
+            solution: { x: 0, y: -50, rotation: 0 }, // Bottom at 25
+            initial: { x: 0, y: -200, rotation: 90 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.SQUARE, // Hilt Guard
+            solution: { x: 0, y: 50, rotation: 0 }, // Top at 25. Bottom at 75.
+            initial: { x: 200, y: 200, rotation: 45 },
+        },
+        {
+            id: 3, ...PIECE_DEFS.TRI_SMALL, // Pommel
+            solution: { x: 0, y: 100, rotation: 180 }, // Top at 75
+            initial: { x: -200, y: 200, rotation: 0 },
+        }
+    ]
+}
+
+const LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7, LEVEL_8]
 
 // --- Component ---
 
 export default function TangramGame() {
-  const [currentLevelIdx] = useState(0)
+  const [currentLevelIdx, setCurrentLevelIdx] = useState(0)
   const level = LEVELS[currentLevelIdx]
   
   // State for pieces: current x, y, rotation, isPlaced
@@ -208,6 +346,30 @@ export default function TangramGame() {
     setTimeLeft(0)
     setIsPaused(false)
     setShowSidebar(false)
+  }
+
+  const nextLevel = () => {
+      const nextIdx = (currentLevelIdx + 1) % LEVELS.length
+      setCurrentLevelIdx(nextIdx)
+      setGameState('playing')
+      
+      // Explicitly reset pieces for the next level immediately to prevent stale state
+      const nextLevelData = LEVELS[nextIdx]
+      const initialStates: Record<number, { x: number; y: number; rotation: number; isPlaced: boolean; isFlipped: boolean }> = {}
+      nextLevelData.pieces.forEach(p => {
+        initialStates[p.id] = {
+            x: p.initial.x,
+            y: p.initial.y,
+            rotation: p.initial.rotation,
+            isPlaced: false,
+            isFlipped: false
+        }
+      })
+      setPieceStates(initialStates)
+      
+      setTimeLeft(0)
+      setIsPaused(false)
+      setShowSidebar(false)
   }
 
   // --- Drag & Drop Logic ---
@@ -499,10 +661,32 @@ export default function TangramGame() {
                 >
                     {/* Logo / Title */}
                     <div className="mb-8 relative transform hover:scale-105 transition-transform duration-300">
+                        {/* Decorative Tangram Shapes */}
+                        <div className="absolute -top-8 -left-12 rotate-[-15deg]">
+                            <svg width="60" height="60" viewBox="-60 -60 120 120" style={{ overflow: 'visible' }}>
+                                <path d="M -50 50 L 50 50 L -50 -50 Z" fill="#881337" stroke="#4c0519" strokeWidth="4" />
+                            </svg>
+                        </div>
+                        <div className="absolute -top-4 -right-10 rotate-[20deg]">
+                             <svg width="50" height="50" viewBox="-35 -35 70 70" style={{ overflow: 'visible' }}>
+                                <path d="M -25 -25 L 25 -25 L 25 25 L -25 25 Z" fill="#881337" stroke="#4c0519" strokeWidth="4" />
+                            </svg>
+                        </div>
+                         <div className="absolute bottom-2 -left-16 rotate-[45deg]">
+                             <svg width="60" height="40" viewBox="-60 -35 120 70" style={{ overflow: 'visible' }}>
+                                <path d="M -50 25 L 0 25 L 50 -25 L 0 -25 Z" fill="#881337" stroke="#4c0519" strokeWidth="4" />
+                            </svg>
+                        </div>
+                        <div className="absolute -bottom-6 -right-8 rotate-[-10deg]">
+                            <svg width="55" height="55" viewBox="-35 -35 70 70" style={{ overflow: 'visible' }}>
+                                <path d="M -25 25 L 25 25 L -25 -25 Z" fill="#881337" stroke="#4c0519" strokeWidth="4" />
+                            </svg>
+                        </div>
+
                         <h1 
                             className="text-8xl font-black text-[#facc15]"
                             style={{ 
-                                fontFamily: '"Black Han Sans", system-ui',
+                                fontFamily: '"Darumadrop One", system-ui',
                                 textShadow: '4px 4px 0 #881337, -2px -2px 0 #881337, 2px -2px 0 #881337, -2px 2px 0 #881337',
                                 WebkitTextStroke: '2px #881337',
                                 whiteSpace: 'nowrap'
@@ -517,7 +701,7 @@ export default function TangramGame() {
                         onClick={() => setGameState('playing')}
                         className="mb-12 group relative px-12 py-4 bg-gradient-to-b from-[#facc15] to-[#ca8a04] rounded-2xl shadow-[0_6px_0_#854d0e] active:shadow-none active:translate-y-2 transition-all"
                     >
-                        <div className="flex items-center gap-4 text-white font-black text-4xl" style={{ fontFamily: '"Black Han Sans", system-ui', textShadow: '2px 2px 0 #854d0e' }}>
+                        <div className="flex items-center gap-4 text-white font-black text-4xl" style={{ fontFamily: '"Darumadrop One", system-ui', textShadow: '2px 2px 0 #854d0e' }}>
                             PLAY <Play fill="white" size={32} />
                         </div>
                     </button>
@@ -532,10 +716,10 @@ export default function TangramGame() {
                                     <path d="M 0 60 L 100 60 L 0 0 Z" fill="#881337" stroke="#4c0519" strokeWidth="2" />
                                     <circle cx="30" cy="40" r="8" fill="#f59e0b" stroke="#b45309" strokeWidth="1" />
                                     {/* Hand Icon */}
-                                    <image href="https://lucide.dev/icons/hand" x="30" y="40" width="24" height="24" />
+                                    <image href="/Vector.svg" x="30" y="40" width="24" height="24" />
                                 </svg>
                             </div>
-                            <p className="font-black text-[#4c0519] text-xl leading-tight" style={{ fontFamily: '"Black Han Sans", system-ui' }}>
+                            <p className="font-black text-[#4c0519] text-xl leading-tight" style={{ fontFamily: '"Darumadrop One", system-ui' }}>
                                 drag the dot<br/>to move a tile
                             </p>
                         </div>
@@ -552,7 +736,7 @@ export default function TangramGame() {
                                     <path d="M 60 70 Q 80 70 90 50" fill="none" stroke="black" strokeWidth="3" markerEnd="url(#arrowhead)" />
                                 </svg>
                             </div>
-                            <p className="font-black text-[#4c0519] text-xl leading-tight" style={{ fontFamily: '"Black Han Sans", system-ui' }}>
+                            <p className="font-black text-[#4c0519] text-xl leading-tight" style={{ fontFamily: '"Darumadrop One", system-ui' }}>
                                 Drag around<br/>the dot to<br/>rotate a tile
                             </p>
                         </div>
@@ -567,7 +751,7 @@ export default function TangramGame() {
                                     <line x1="10" y1="40" x2="90" y2="40" stroke="black" strokeWidth="3" markerEnd="url(#arrowhead)" />
                                 </svg>
                             </div>
-                            <p className="font-black text-[#4c0519] text-xl leading-tight" style={{ fontFamily: '"Black Han Sans", system-ui' }}>
+                            <p className="font-black text-[#4c0519] text-xl leading-tight" style={{ fontFamily: '"Darumadrop One", system-ui' }}>
                                 Double click<br/>to flip<br/>a tile
                             </p>
                         </div>
@@ -686,28 +870,26 @@ export default function TangramGame() {
                     width: level.boardSize.width,
                     height: level.boardSize.height,
                     transform: `scale(${scale})`,
-                    // Bamboo Frame Simulation
-                    border: '12px solid #859f3d',
-                    outline: '4px dashed #556b2f',
-                    outlineOffset: '-8px',
-                    borderRadius: '4px'
+                    // Bamboo Frame replaced by image
                 }}
             >
-                {/* Bamboo Joints (Visual Decoration corners) */}
-                <div className="absolute -top-4 -left-4 w-8 h-8 bg-[#556b2f] rounded-full z-20" />
-                <div className="absolute -top-4 -right-4 w-8 h-8 bg-[#556b2f] rounded-full z-20" />
-                <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-[#556b2f] rounded-full z-20" />
-                <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-[#556b2f] rounded-full z-20" />
+                {/* Game Border Image */}
+                <img 
+                    src="/Layer_4-2.svg" 
+                    alt="Game Border" 
+                    className="absolute -inset-6 w-[calc(100%+48px)] h-[calc(100%+48px)] pointer-events-none select-none"
+                    style={{ maxWidth: 'none', zIndex: 0 }}
+                />
 
-                {/* Level Indicator (Paper Clip style) */}
-                <div className="absolute -top-6 left-8 bg-[#fde047] px-4 py-1 rounded shadow-md transform -rotate-2 z-30 border-2 border-orange-700">
-                    <span className="text-orange-900 font-black text-xl" style={{ fontFamily: '"Black Han Sans", system-ui' }}>
+                {/* Level Indicator (Simple Text) */}
+                <div className="absolute top-8 left-4 z-30 pointer-events-none select-none">
+                    <span className="text-[#971E4C] font-black text-3xl" style={{ fontFamily: '"Darumadrop One", system-ui' }}>
                         LEVEL {level.id}
                     </span>
                 </div>
 
                 {/* Target Silhouette (The Hole) */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                     {level.pieces.map(p => (
                         <div 
                             key={`target-${p.id}`}
@@ -738,7 +920,7 @@ export default function TangramGame() {
                     Actually, our state tracks x/y relative to board center. 
                     Initial positions are large X values (off to the right). 
                 */}
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center z-50">
                     {level.pieces.map(p => {
                         const state = pieceStates[p.id] || { x: 0, y: 0, rotation: 0, isPlaced: false }
                         const isDragging = draggedPieceId === p.id
@@ -749,7 +931,7 @@ export default function TangramGame() {
                                 key={p.id}
                                 className={cn(
                                     "absolute transition-transform pointer-events-none", // Container ignores events
-                                    isDragging ? "z-50" : (isActive ? "z-45" : "z-40"),
+                                    isDragging ? "z-[100]" : (isActive ? "z-[90]" : "z-[80]"),
                                     // If dragging, disable transition for smooth follow
                                     isDragging ? "duration-0" : "duration-200 ease-out" 
                                 )}
@@ -784,17 +966,17 @@ export default function TangramGame() {
                                             {/* Rotate Handle (Top Center stem) */}
                                             <line 
                                                 x1="0" y1={-p.height/2 - 5} 
-                                                x2="0" y2={-p.height/2 - 25} 
+                                                x2="0" y2={-p.height/2 - 40} 
                                                 stroke="#3b82f6" 
-                                                strokeWidth="1.5" 
+                                                strokeWidth="3" 
                                             />
                                             <circle 
-                                                cx="0" cy={-p.height/2 - 25} 
-                                                r="6" 
+                                                cx="0" cy={-p.height/2 - 40} 
+                                                r="16" 
                                                 fill="#ffffff" 
                                                 stroke="#3b82f6" 
-                                                strokeWidth="2"
-                                                className="rotate-handle cursor-[url('https://lucide.dev/icons/rotate-cw'),_auto] pointer-events-auto hover:scale-125 transition-transform"
+                                                strokeWidth="3"
+                                                className="rotate-handle cursor-[url('https://lucide.dev/icons/rotate-cw'),_auto] pointer-events-auto hover:scale-110 transition-transform"
                                                 onPointerDown={(e) => handlePointerDown(e, p.id)}
                                             />
                                         </g>
@@ -823,33 +1005,25 @@ export default function TangramGame() {
                     })}
                 </div>
 
-                {/* Finish Button (Always visible but active only when done? Or just for show?) 
-                    The image has a 'FINISH' button. Maybe it appears when done.
-                */}
-                {gameState === 'completed' && (
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-                        <button 
-                            onClick={() => {
-                                // Next level logic or restart
-                                resetLevel()
-                            }}
-                            className="bg-[#fde047] text-orange-900 border-b-4 border-orange-700 px-8 py-2 rounded-xl font-black text-2xl shadow-lg active:border-b-0 active:translate-y-1"
-                            style={{ fontFamily: '"Black Han Sans", system-ui' }}
-                        >
-                            NEXT LEVEL
-                        </button>
-                    </div>
-                )}
-                 {gameState === 'playing' && (
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 opacity-50">
-                        <div 
-                            className="bg-[#fde047] text-orange-900 border-b-4 border-orange-700 px-8 py-2 rounded-xl font-black text-2xl"
-                            style={{ fontFamily: '"Black Han Sans", system-ui' }}
-                        >
-                            FINISH
-                        </div>
-                    </div>
-                )}
+                {/* Finish Button */}
+                <div 
+                    className={cn(
+                        "absolute bottom-8 right-2 transition-all duration-300",
+                        gameState === 'completed' ? "z-50 cursor-pointer hover:scale-105 active:scale-95 animate-bounce" : "z-10 opacity-50 grayscale"
+                    )}
+                >
+                    <button
+                        onClick={() => {
+                            if (gameState === 'completed') {
+                                nextLevel()
+                            }
+                        }}
+                        disabled={gameState !== 'completed'}
+                        className="focus:outline-none"
+                    >
+                        <img src="/Group 26087109.svg" alt="Finish" className="h-10 sm:h-12" />
+                    </button>
+                </div>
 
             </div>
         </div>
