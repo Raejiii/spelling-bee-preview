@@ -51,6 +51,27 @@ const PIECE_DEFS = {
         height: 50,
         validRotations: [0]
     },
+    TRI_MEDIUM: {
+        type: 'medium-triangle',
+        path: "M -37.5 37.5 L 37.5 37.5 L -37.5 -37.5 Z", // 75x75
+        width: 75,
+        height: 75,
+        validRotations: [0]
+    },
+    TRI_ISO: {
+        type: 'iso-triangle',
+        path: "M -25 25 L 25 25 L 0 -25 Z", // 50x50 Isosceles
+        width: 50,
+        height: 50,
+        validRotations: [0, 90, 180, 270]
+    },
+    TRAPEZOID: {
+        type: 'trapezoid',
+        path: "M -25 -25 L 25 -25 L 50 25 L -50 25 Z", // Top 50, Bottom 100, Height 50
+        width: 100,
+        height: 50,
+        validRotations: [0]
+    },
     SQUARE: {
         type: 'square',
         path: "M -25 -25 L 25 -25 L 25 25 L -25 25 Z",
@@ -70,162 +91,202 @@ const PIECE_DEFS = {
 // --- Level Data ---
 
 const LEVEL_1: Level = {
-  id: 1,
+  id: 1, // The T
   boardSize: { width: 400, height: 500 },
   pieces: [
     {
-      id: 1, ...PIECE_DEFS.RECT,
-      solution: { x: 0, y: 50, rotation: 0 },
+      id: 1, ...PIECE_DEFS.RECT, // Vertical
+      solution: { x: 0, y: 25, rotation: 0 },
       initial: { x: 200, y: 150, rotation: 90 },
     },
     {
-      id: 2, ...PIECE_DEFS.PARA,
-      solution: { x: 50, y: -50, rotation: 0 },
-      initial: { x: 200, y: 50, rotation: 45 },
-    },
-    {
-      id: 3, ...PIECE_DEFS.TRI_SMALL,
-      solution: { x: 0, y: -50, rotation: 0 }, 
-      initial: { x: 200, y: -50, rotation: 0 }
-    },
-    {
-      id: 4, ...PIECE_DEFS.TRI_SMALL,
-      solution: { x: 75, y: -75, rotation: 180 },
-      initial: { x: 200, y: -120, rotation: 180 }
+      id: 2, ...PIECE_DEFS.RECT, // Horizontal
+      solution: { x: 0, y: -75, rotation: 90 },
+      initial: { x: 200, y: 50, rotation: 0 },
     }
   ]
 }
 
 const LEVEL_2: Level = {
-    id: 2, // The House
+    id: 2, // The Tower
     boardSize: { width: 400, height: 500 },
     pieces: [
         {
-            id: 1, ...PIECE_DEFS.SQUARE, // Body
-            solution: { x: 0, y: 25, rotation: 0 },
-            initial: { x: 200, y: 150, rotation: 45 },
+            id: 1, ...PIECE_DEFS.RECT, // Base
+            solution: { x: 0, y: 50, rotation: 90 },
+            initial: { x: 200, y: 150, rotation: 0 },
         },
         {
-            id: 2, ...PIECE_DEFS.TRI_SMALL, // Roof
-            solution: { x: 0, y: -25, rotation: 0 },
+            id: 2, ...PIECE_DEFS.SQUARE, // Middle
+            solution: { x: 0, y: 0, rotation: 0 },
+            initial: { x: 200, y: 0, rotation: 45 },
+        },
+        {
+            id: 3, ...PIECE_DEFS.TRI_SMALL, // Top
+            solution: { x: 0, y: -50, rotation: 0 },
             initial: { x: 200, y: -100, rotation: 180 },
         }
     ]
 }
 
 const LEVEL_3: Level = {
-    id: 3, // The Boat
-    boardSize: { width: 400, height: 500 },
-    pieces: [
-        {
-            id: 1, ...PIECE_DEFS.PARA, // Hull
-            solution: { x: 0, y: 25, rotation: 0 },
-            initial: { x: 200, y: 50, rotation: 45 },
-        },
-        {
-            id: 2, ...PIECE_DEFS.TRI_SMALL, // Sail
-            solution: { x: 0, y: -25, rotation: 0 },
-            initial: { x: -200, y: -50, rotation: 0 },
-        }
-    ]
-}
-
-const LEVEL_4: Level = {
-    id: 4, // The Tree
-    boardSize: { width: 400, height: 500 },
-    pieces: [
-        {
-            id: 1, ...PIECE_DEFS.RECT, // Trunk
-            solution: { x: 0, y: 50, rotation: 0 }, // Top at -25
-            initial: { x: -200, y: 50, rotation: 90 },
-        },
-        {
-            id: 2, ...PIECE_DEFS.TRI_LARGE, // Leaves
-            solution: { x: 0, y: -75, rotation: 0 }, // Bottom at -25
-            initial: { x: 200, y: -100, rotation: 180 },
-        }
-    ]
-}
-
-const LEVEL_5: Level = {
-    id: 5, // The Hammer
-    boardSize: { width: 400, height: 500 },
-    pieces: [
-        {
-            id: 1, ...PIECE_DEFS.RECT, // Handle
-            solution: { x: 0, y: 25, rotation: 0 }, // Top at -50
-            initial: { x: 200, y: 150, rotation: 90 },
-        },
-        {
-            id: 2, ...PIECE_DEFS.RECT, // Head
-            solution: { x: 0, y: -75, rotation: 90 },
-            initial: { x: -200, y: -100, rotation: 0 },
-        }
-    ]
-}
-
-const LEVEL_6: Level = {
-    id: 6, // The Rocket
+    id: 3, // The Rocket
     boardSize: { width: 400, height: 500 },
     pieces: [
         {
             id: 1, ...PIECE_DEFS.RECT, // Body
-            solution: { x: 0, y: 0, rotation: 0 }, // Top at -75
+            solution: { x: 0, y: 25, rotation: 0 },
             initial: { x: 0, y: 200, rotation: 90 },
         },
         {
-            id: 2, ...PIECE_DEFS.TRI_SMALL, // Nose
-            solution: { x: 0, y: -100, rotation: 0 }, // Bottom at -75
+            id: 2, ...PIECE_DEFS.TRI_ISO, // Nose
+            solution: { x: 0, y: -75, rotation: 0 },
             initial: { x: 200, y: -200, rotation: 180 },
         },
         {
             id: 3, ...PIECE_DEFS.TRI_SMALL, // Fin Left
-            solution: { x: -50, y: 75, rotation: 90 },
+            solution: { x: -50, y: 75, rotation: 270 },
             initial: { x: -200, y: 200, rotation: 0 },
         },
         {
             id: 4, ...PIECE_DEFS.TRI_SMALL, // Fin Right
-            solution: { x: 50, y: 75, rotation: 270 },
+            solution: { x: 50, y: 75, rotation: 0 },
             initial: { x: 200, y: 200, rotation: 0 },
         }
     ]
 }
 
-const LEVEL_7: Level = {
-    id: 7, // The Fish
+const LEVEL_4: Level = {
+    id: 4, // The Bridge
     boardSize: { width: 400, height: 500 },
     pieces: [
         {
-            id: 1, ...PIECE_DEFS.SQUARE, // Body
-            solution: { x: 0, y: 0, rotation: 45 },
-            initial: { x: 0, y: 0, rotation: 0 },
+            id: 1, ...PIECE_DEFS.RECT, // Left Pillar
+            solution: { x: -75, y: 25, rotation: 0 },
+            initial: { x: -200, y: 50, rotation: 90 },
         },
         {
-            id: 2, ...PIECE_DEFS.TRI_SMALL, // Tail
-            solution: { x: -50, y: 0, rotation: 270 },
+            id: 2, ...PIECE_DEFS.RECT, // Right Pillar
+            solution: { x: 75, y: 25, rotation: 0 },
+            initial: { x: 200, y: 50, rotation: 90 },
+        },
+        {
+            id: 3, ...PIECE_DEFS.RECT, // Span
+            solution: { x: 0, y: -75, rotation: 90 },
+            initial: { x: 0, y: 200, rotation: 0 },
+        }
+    ]
+}
+
+const LEVEL_5: Level = {
+    id: 5, // The Pyramid
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.TRAPEZOID, // Base
+            solution: { x: 0, y: 50, rotation: 0 },
+            initial: { x: 0, y: 200, rotation: 180 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.SQUARE, // Middle
+            solution: { x: 0, y: 0, rotation: 0 },
+            initial: { x: -200, y: 0, rotation: 45 },
+        },
+        {
+            id: 3, ...PIECE_DEFS.TRI_SMALL, // Top
+            solution: { x: 0, y: -50, rotation: 0 },
+            initial: { x: 200, y: -100, rotation: 90 },
+        }
+    ]
+}
+
+const LEVEL_6: Level = {
+    id: 6, // The Helicopter
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.RECT, // Body
+            solution: { x: 0, y: 0, rotation: 90 },
+            initial: { x: -200, y: -200, rotation: 0 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.TRI_LARGE, // Cockpit
+            solution: { x: -125, y: 0, rotation: 270 },
+            initial: { x: 200, y: -200, rotation: 0 },
+        },
+        {
+            id: 3, ...PIECE_DEFS.TRAPEZOID, // Tail
+            solution: { x: 100, y: 0, rotation: 270 },
+            initial: { x: 200, y: 200, rotation: 0 },
+        },
+        {
+            id: 4, ...PIECE_DEFS.RECT, // Propeller
+            solution: { x: 0, y: -50, rotation: 0 },
+            initial: { x: -200, y: 200, rotation: 90 },
+        }
+    ]
+}
+
+const LEVEL_7: Level = {
+    id: 7, // The Sailboat
+    boardSize: { width: 400, height: 500 },
+    pieces: [
+        {
+            id: 1, ...PIECE_DEFS.TRAPEZOID, // Hull
+            solution: { x: 0, y: 50, rotation: 180 },
+            initial: { x: 0, y: 200, rotation: 0 },
+        },
+        {
+            id: 2, ...PIECE_DEFS.RECT, // Mast
+            solution: { x: 0, y: -50, rotation: 0 },
+            initial: { x: 200, y: 0, rotation: 45 },
+        },
+        {
+            id: 3, ...PIECE_DEFS.TRI_LARGE, // Main Sail
+            solution: { x: 75, y: -75, rotation: 270 },
+            initial: { x: -200, y: -100, rotation: 0 },
+        },
+        {
+            id: 4, ...PIECE_DEFS.TRI_MEDIUM, // Jib
+            solution: { x: -62.5, y: -50, rotation: 90 },
             initial: { x: 200, y: 0, rotation: 0 },
         }
     ]
 }
 
 const LEVEL_8: Level = {
-    id: 8, // The Sword
+    id: 8, // The Robot
     boardSize: { width: 400, height: 500 },
     pieces: [
         {
-            id: 1, ...PIECE_DEFS.RECT, // Blade
-            solution: { x: 0, y: -50, rotation: 0 }, // Bottom at 25
-            initial: { x: 0, y: -200, rotation: 90 },
+            id: 1, ...PIECE_DEFS.RECT, // Body
+            solution: { x: 0, y: 0, rotation: 0 },
+            initial: { x: 0, y: 0, rotation: 90 },
         },
         {
-            id: 2, ...PIECE_DEFS.SQUARE, // Hilt Guard
-            solution: { x: 0, y: 50, rotation: 0 }, // Top at 25. Bottom at 75.
-            initial: { x: 200, y: 200, rotation: 45 },
+            id: 2, ...PIECE_DEFS.SQUARE, // Head
+            solution: { x: 0, y: -100, rotation: 0 },
+            initial: { x: 0, y: -200, rotation: 45 },
         },
         {
-            id: 3, ...PIECE_DEFS.TRI_SMALL, // Pommel
-            solution: { x: 0, y: 100, rotation: 180 }, // Top at 75
+            id: 3, ...PIECE_DEFS.TRI_SMALL, // Arm L
+            solution: { x: -50, y: -25, rotation: 90 },
+            initial: { x: -200, y: 0, rotation: 0 },
+        },
+        {
+            id: 4, ...PIECE_DEFS.TRI_SMALL, // Arm R
+            solution: { x: 50, y: -25, rotation: 270 },
+            initial: { x: 200, y: 0, rotation: 0 },
+        },
+        {
+            id: 5, ...PIECE_DEFS.SQUARE, // Foot L
+            solution: { x: -25, y: 100, rotation: 0 },
             initial: { x: -200, y: 200, rotation: 0 },
+        },
+        {
+            id: 6, ...PIECE_DEFS.SQUARE, // Foot R
+            solution: { x: 25, y: 100, rotation: 0 },
+            initial: { x: 200, y: 200, rotation: 0 },
         }
     ]
 }
